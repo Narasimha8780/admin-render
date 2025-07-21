@@ -52,9 +52,25 @@ app.get('/api/nodes', (req, res) => {
   res.json({ nodes: Array.from(connectedRenderNodes) });
 });
 
-// Removed duplicate declarations to fix "Identifier 'express' has already been declared" error
+// GET /api/monitor?ip=<renderNodeIp>
+// Fetch metrics from the Render Node
+app.get('/api/monitor', async (req, res) => {
+  const renderNodeIp = req.query.ip;
+  if (!renderNodeIp) {
+    return res.status(400).json({ error: 'Missing Render Node IP address.' });
+  }
 
-// The rest of the code remains unchanged
+  try {
+    console.log(`Fetching metrics from Render Node at ${renderNodeIp}...`);
+    // Proxy the request to the Render Node metrics endpoint
+    const response = await axios.get(`http://${renderNodeIp}:4000/metrics`, { timeout: 7000 });
+    console.log(`Metrics received from ${renderNodeIp}:`, response.data);
+    return res.json(response.data);
+  } catch (error) {
+    console.error(`Error fetching metrics from Render Node at ${renderNodeIp}:`, error.message);
+    return res.status(500).json({ error: `Failed to fetch metrics from Render Node at ${renderNodeIp}.` });
+  }
+});
 
 // POST /api/start
 // Body: { ip: "<renderNodeIp>" }
@@ -66,9 +82,10 @@ app.post('/api/start', async (req, res) => {
   }
 
   try {
-    const response = await axios.post(`http://${renderNodeIp}:4000/start`, {}, { timeout: 3000 });
+    const response = await axios.post(`http://${renderNodeIp}:4000/start`, {}, { timeout: 7000 });
     return res.json({ message: `Render Node at ${renderNodeIp} started successfully.` });
   } catch (error) {
+    console.error(`Error starting Render Node at ${renderNodeIp}:`, error.message);
     return res.status(500).json({ error: `Failed to start Render Node at ${renderNodeIp}.` });
   }
 });
@@ -83,9 +100,10 @@ app.post('/api/stop', async (req, res) => {
   }
 
   try {
-    const response = await axios.post(`http://${renderNodeIp}:4000/stop`, {}, { timeout: 3000 });
+    const response = await axios.post(`http://${renderNodeIp}:4000/stop`, {}, { timeout: 7000 });
     return res.json({ message: `Render Node at ${renderNodeIp} stopped successfully.` });
   } catch (error) {
+    console.error(`Error stopping Render Node at ${renderNodeIp}:`, error.message);
     return res.status(500).json({ error: `Failed to stop Render Node at ${renderNodeIp}.` });
   }
 });
