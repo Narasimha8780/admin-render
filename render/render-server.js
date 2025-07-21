@@ -105,9 +105,16 @@ app.post('/stop', (req, res) => {
   res.json({ message: 'Render Node stopped successfully.' });
 });
 
+const url = require('url');
+
 // Function to register with Admin Node
 async function registerWithAdmin(adminIp, renderIp) {
   try {
+    // Validate and construct URL properly
+    const adminUrl = url.parse(`http://${adminIp}:3000/api/register`);
+    if (!adminUrl.protocol || !adminUrl.hostname) {
+      throw new Error('Invalid Admin Node URL');
+    }
     const response = await axios.post(`http://${adminIp}:3000/api/register`, {
       ip: renderIp
     });
