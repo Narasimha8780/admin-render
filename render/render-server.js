@@ -12,6 +12,7 @@ const axios = require('axios');
 
 const app = express();
 const PORT = 4000;
+const HOST = '0.0.0.0'; // Listen on all interfaces
 
 app.use(bodyParser.json());
 
@@ -118,14 +119,15 @@ function promptAdminNodeIp() {
     console.log(`Admin Node IP set to: ${adminNodeIp}`);
     rl.close();
     
-    app.listen(PORT, async () => {
-      console.log(`Render Node server running on port ${PORT}`);
-      const renderNodeIp = getPrivateIp();
-      console.log(`Render Node IP: ${renderNodeIp}`);
-      
-      // Register with Admin Node
-      await registerWithAdmin(adminNodeIp, renderNodeIp);
-    });
+
+app.listen(PORT, HOST, async () => {
+  console.log(`Render Node server running on ${HOST}:${PORT}`);
+  const renderNodeIp = getPrivateIp();
+  console.log(`Render Node IP: ${renderNodeIp}`);
+  
+  // Register with Admin Node
+  await registerWithAdmin(adminNodeIp, renderNodeIp);
+});
   });
 }
 
