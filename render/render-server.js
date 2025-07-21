@@ -17,6 +17,23 @@ const HOST = '0.0.0.0'; // Listen on all interfaces
 app.use(bodyParser.json());
 
 let adminNodeIp = '';
+
+// Also listen on localhost for local access
+const LOCALHOST = '127.0.0.1';
+
+app.listen(PORT, HOST, async () => {
+  console.log(`Render Node server running on ${HOST}:${PORT}`);
+  const renderNodeIp = getPrivateIp();
+  console.log(`Render Node IP: ${renderNodeIp}`);
+  
+  // Register with Admin Node
+  await registerWithAdmin(adminNodeIp, renderNodeIp);
+});
+
+// Additionally listen on localhost for local access
+app.listen(PORT, LOCALHOST, () => {
+  console.log(`Render Node server also listening on ${LOCALHOST}:${PORT}`);
+});
 let isRunning = false;
 
 // Function to get the first private IPv4 address of this machine
