@@ -1,114 +1,50 @@
-# Admin and Render Node System
+# Admin-Employee Management System
 
-## Overview
-This project implements a comprehensive system architecture with two main applications running within the same Virtual Private Cloud (VPC):
+This repository contains two separate frontend projects and one backend server for an admin-employee management system with role-based login and dashboards.
 
-- **Admin Application:** A Node.js server with Vue.js frontend for monitoring and controlling Render Nodes
-- **Render Application:** A Node.js server that reports system metrics and responds to control commands
+## Backend Server
 
-## Project Structure
+- Built with Node.js, Express, and MongoDB.
+- Runs on server IP at port 3000.
+- Handles authentication for admin, team leads (TL), and employees.
+- MongoDB is used for user data storage.
+- Start the server with:
+  ```
+  node server.js
+  ```
+- Ensure MongoDB is running and accessible.
 
-```
-├── admin/                    # Admin Node Application
-│   ├── admin-server.js      # Main server file
-│   ├── AdminDashboard.vue   # Vue.js UI component
-│   ├── package.json         # Dependencies and scripts
-│   └── README.md           # Admin-specific documentation
-├── render/                  # Render Node Application
-│   ├── render-server.js    # Main server file
-│   ├── package.json        # Dependencies and scripts
-│   └── README.md          # Render-specific documentation
-└── README.md              # This file
-```
+## Admin Frontend
 
-## Quick Start
+- Built with Vue.js and Tailwind CSS.
+- Contains login page with role selection (admin, TL, employee).
+- Redirects users to role-specific dashboards.
+- Start the admin frontend with:
+  ```
+  cd frontend
+  npm install
+  npm run serve
+  ```
 
-### 1. Setup Admin Application
+## Employee Frontend
 
-```bash
-cd admin
-npm install
-npm start
-```
+- Built with Vue.js and Tailwind CSS.
+- Simplified login and dashboard for employees.
+- Connects to backend server for authentication and data.
+- Can be deployed on employee machines.
+- Start the employee frontend with:
+  ```
+  cd employee-frontend
+  npm install
+  npm run serve
+  ```
 
-The Admin Node will run on port 3000.
+## Notes
 
-### 2. Setup Render Application
+- Update the backend MongoDB connection string in `server.js` if needed.
+- Replace `serverip` in employee frontend API calls with the actual backend server IP.
+- Both frontends use Vue Router for navigation.
 
-```bash
-cd render
-npm install
-npm start
-```
+## Contact
 
-When prompted, enter the Admin Node's private IP address.
-The Render Node will run on port 4000.
-
-## System Architecture
-
-```
-┌─────────────────────────┐
-│   Admin Node (Port 3000) │
-│   - Vue.js Frontend      │
-│   - Node.js API Server  │
-└─────────┬───────────────┘
-          │ HTTP Requests
-          │ (Private IP)
-┌─────────▼───────────────┐
-│  Render Node (Port 4000) │
-│  - Metrics Reporting    │
-│  - Command Processing   │
-└─────────────────────────┘
-```
-
-## Features
-
-### Admin Application
-- Input field for Render Node private IP addresses
-- Real-time metrics monitoring (CPU, GPU, Memory)
-- Start/Stop control buttons
-- Automatic polling every 5 seconds
-- Error handling and validation
-
-### Render Application
-- System metrics reporting
-- Start/Stop command processing
-- Private IP validation
-- Real-time metric generation
-
-## Communication Protocol
-
-All communication happens over HTTP using private IP addresses within the VPC:
-
-- **Admin → Render:** Control commands and metric requests
-- **Render → Admin:** Metric responses and status updates
-
-## Prerequisites
-
-- Node.js (version 14 or higher)
-- npm (Node package manager)
-- Network setup allowing communication between nodes via private IPs
-
-## Testing
-
-1. Start both applications as described in Quick Start
-2. Open the Admin UI and enter a Render Node IP
-3. Verify metrics display and control buttons work
-4. Test error scenarios (invalid IPs, unreachable nodes)
-
-## Security Considerations
-
-- Only private IP addresses are accepted
-- Input validation on all endpoints
-- Error handling prevents information disclosure
-- Designed for VPC-internal communication only
-
-## License
-
-MIT License
-
-## Support
-
-For detailed documentation on each application, see:
-- [Admin Application README](./admin/README.md)
-- [Render Application README](./render/README.md)
+For any issues or questions, please contact the maintainer.
