@@ -108,9 +108,10 @@ function promptAdminNodeIp() {
 
   rl.question('Enter Admin Node private IP address: ', async (answer) => {
     const ip = answer.trim();
-    const privateIpRegex = /^(10\.(?:[0-9]{1,3}\.){2}[0-9]{1,3}|172\.(1[6-9]|2[0-9]|3[0-1])\.(?:[0-9]{1,3}\.)[0-9]{1,3}|192\.168\.(?:[0-9]{1,3}\.)[0-9]{1,3})$/;
-    if (!privateIpRegex.test(ip)) {
-      console.error('Invalid private IP address. Please restart and enter a valid IP.');
+    // Relaxed IP validation to allow any IPv4 address for testing
+    const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/;
+    if (!ipv4Regex.test(ip)) {
+      console.error('Invalid IPv4 address. Please restart and enter a valid IP.');
       process.exit(1);
     }
     adminNodeIp = ip;
