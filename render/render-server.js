@@ -8,6 +8,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const os = require('os');
 const readline = require('readline');
+const axios = require('axios');
 
 const app = express();
 const PORT = 4000;
@@ -86,6 +87,18 @@ app.post('/stop', (req, res) => {
   res.json({ message: 'Render Node stopped successfully.' });
 });
 
+// Function to register with Admin Node
+async function registerWithAdmin(adminIp, renderIp) {
+  try {
+    const response = await axios.post(`http://${adminIp}:3000/api/register`, {
+      ip: renderIp
+    });
+    console.log(`Successfully registered with Admin Node: ${response.data.message}`);
+  } catch (error) {
+    console.error(`Failed to register with Admin Node: ${error.message}`);
+  }
+}
+
 // Prompt for Admin Node IP on startup
 function promptAdminNodeIp() {
   const rl = readline.createInterface({
@@ -93,7 +106,7 @@ function promptAdminNodeIp() {
     output: process.stdout,
   });
 
-  rl.question('Enter Admin Node private IP address: ', (answer) => {
+  rl.question('Enter Admin Node private IP address: ', async (answer) => {
     const ip = answer.trim();
     const privateIpRegex = /^(10\.(?:[0-9]{1,3}\.){2}[0-9]{1,3}|172\.(1[6-9]|2[0-9]|3[0-1])\.(?:[0-9]{1,3}\.)[0-9]{1,3}|192\.168\.(?:[0-9]{1,3}\.)[0-9]{1,3})$/;
     if (!privateIpRegex.test(ip)) {
@@ -103,8 +116,14 @@ function promptAdminNodeIp() {
     adminNodeIp = ip;
     console.log(`Admin Node IP set to: ${adminNodeIp}`);
     rl.close();
-    app.listen(PORT, () => {
+    
+    app.listen(PORT, async () => {
       console.log(`Render Node server running on port ${PORT}`);
+      const renderNodeIp = getPrivateIp();
+      console.log(`Render Node IP: ${renderNodeIp}`);
+      
+      // Register with Admin Node
+      await registerWithAdmin(adminNodeIp, renderNodeIp);
     });
   });
 }

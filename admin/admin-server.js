@@ -3,6 +3,7 @@
  * - Serves API endpoints to communicate with Render Nodes via private IP
  * - Proxies metrics and control commands (start/stop)
  * - Serves the dashboard HTML file
+ * - Maintains registry of connected render nodes
  */
 
 const express = require('express');
@@ -23,6 +24,9 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Registry to store connected render nodes
+let connectedRenderNodes = new Set();
+
 // Regex to validate private IP addresses (IPv4)
 const privateIpRegex = /^(10\.(?:[0-9]{1,3}\.){2}[0-9]{1,3}|172\.(1[6-9]|2[0-9]|3[0-1])\.(?:[0-9]{1,3}\.)[0-9]{1,3}|192\.168\.(?:[0-9]{1,3}\.)[0-9]{1,3})$/;
 
@@ -30,6 +34,23 @@ const privateIpRegex = /^(10\.(?:[0-9]{1,3}\.){2}[0-9]{1,3}|172\.(1[6-9]|2[0-9]|
 function isValidPrivateIp(ip) {
   return privateIpRegex.test(ip);
 }
+
+// POST /api/register - Render node registers itself with admin
+app.post('/api/register', (req, res) => {
+  const renderNodeIp = req.body.ip;
+  if (!renderNodeIp || !isValidPrivateIp(renderNodeIp)) {
+    return res.status(400).json({ error: 'Invalid or missing Render Node private IP address.' });
+  }
+  
+  connectedRenderNodes.add(renderNodeIp);
+  console.log(`Render Node registered: ${renderNodeIp}`);
+  res.json({ message: 'Render Node registered successfully.' });
+});
+
+// GET /api/nodes - Get list of connected render nodes
+app.get('/api/nodes', (req, res) => {
+  res.json({ nodes: Array.from(connectedRenderNodes) });
+});
 
 // GET /api/monitor?ip=<renderNodeIp>
 // Fetch metrics from the Render Node
